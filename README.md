@@ -71,9 +71,9 @@ Konfigurační soubor: `scripts/dashboard/DashboardConfig.json`
 
 ```json
 "location": {
-  "name": "Valašské Meziříčí",
-  "latitude": 49.4718,
-  "longitude": 17.9711
+  "name": "Praha",
+  "latitude": 50.0755,
+  "longitude": 14.4378
 }
 ```
 
