@@ -1,0 +1,29 @@
+{
+  "location": {
+    "name": "Praha",
+    "latitude": 50.0755,
+    "longitude": 14.4378
+  },
+  "newsFeeds": [
+    {
+      "name": "ČT24 Domácí",
+      "url": "https://ct24.ceskatelevize.cz/rss/domaci"
+    },
+    {
+      "name": "Seznam Zprávy",
+      "url": "https://www.seznamzpravy.cz/rss"
+    },
+    {
+      "name": "České noviny (ČTK)",
+      "url": "https://www.ceskenoviny.cz/sluzby/rss/zpravy.php"
+    },
+    {
+      "name": "Lupa",
+      "url": "https://www.lupa.cz/rss/clanky/"
+    },
+    {
+      "name": "Root.cz",
+      "url": "https://www.root.cz/rss/clanky/"
+    }
+  ]
+}

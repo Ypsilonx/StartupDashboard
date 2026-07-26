@@ -1,0 +1,10 @@
+# Lokální automaticky generovaná cache zpráv - nepatří do repozitáře
+scripts/dashboard/NewsCache.json
+
+# Lokální konfigurace se soukromou lokalitou - nepatří do repozitáře
+scripts/dashboard/DashboardConfig.local.json
+
+# Editorové/OS artefakty
+.vscode/
+.idea/
+Thumbs.db
