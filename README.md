@@ -5,31 +5,37 @@
 ![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-5391FE.svg)
 
 Jednoduchý startup dashboard pro Windows, který po spuštění zobrazí:
-- počasí a předpověď pro vybranou lokalitu,
-- agregované zprávy z RSS,
+- počasí a 7denní předpověď pro vybranou lokalitu,
+- agregované zprávy z RSS s krátkou anotací,
+- rychlý přístup k vybraným aplikacím,
 - rychlý přístup k systémovým informacím a aktualizacím software.
 
 Projekt je psaný v PowerShell + WinForms, bez externích knihoven.
 
+![Ukázka dashboardu v tmavém motivu](docs/dashboard-screenshot.png)
+
 ## Co to umí
 
-- Dashboard UI s panelem počasí a panelem zpráv.
-- Vizuální ikona počasí podle aktuální teploty.
-- RSS zprávy z více zdrojů (ČT24, Seznam Zprávy, České noviny/ČTK, Lupa, Root).
-- Zobrazení času publikace článku.
+- Bezrámečkové, mírně průhledné okno s vlastní hlavičkou — přesun tažením za hlavičku, tlačítka minimalizovat/zavřít.
+- Světlý/tmavý motiv — při startu se odvodí ze systémového nastavení Windows (pokud máš nastavené automatické přepínání motivu Windows v určitou hodinu, dashboard to zohlední při každém spuštění), ručně jde přepnout tlačítkem ☀/☾ v hlavičce.
+- Panel počasí s vizuální ikonou podle aktuální teploty a 7denní předpovědí (scrollovatelná tabulka).
+- Panel zpráv z více RSS zdrojů (ČT24, Seznam Zprávy, České noviny/ČTK, Lupa, Root) s krátkou anotací článku v náhledovém panelu (klik vybere a zobrazí anotaci, dvojklik otevře článek v prohlížeči).
 - Filtrování zpráv podle zdroje (checkboxy + ALL jako výchozí).
-- Tlačítko "System" otevře systémové nastavení Windows (`ms-settings:about`) s HW/SW přehledem počítače.
-- Okno "Software" se seznamem aplikací s dostupnou novou verzí a tlačítkem pro upgrade přes winget.
+- Rychlé spuštění vybraných aplikací — ikony s jedním klikem spustí aplikaci, tlačítko "+ Přidat" přidá novou (ikona se vytáhne přímo z `.exe`/`.lnk`), pravým klikem jde aplikaci odebrat.
+- Tlačítko "Systém" otevře systémové nastavení Windows (`ms-settings:about`) s HW/SW přehledem počítače.
+- Okno "Software" se seznamem aplikací s dostupnou novou verzí, průběhovým ukazatelem při načítání/upgradu a tlačítkem pro upgrade přes winget.
 
 ## Struktura projektu
 
 ```text
+docs/
+  dashboard-screenshot.png           # ukázkový screenshot pro README
 scripts/
   StartupInfo.ps1                    # vstupní skript (wrapper)
   dashboard/
     StartupDashboard.ps1             # hlavní WinForms UI
     Dashboard.Core.psm1              # datové funkce (počasí, RSS, aktualizace software)
-    DashboardConfig.json             # konfigurace lokality a RSS feedů
+    DashboardConfig.json             # konfigurace lokality, RSS feedů a rychlého spuštění
     NewsCache.json                   # automaticky generovaná lokální cache zpráv
 ```
 
@@ -91,6 +97,16 @@ Doporučení pro přidání nového feedu:
 - Každý zdroj musí mít unikátní `name` (používá se ve filtru zdrojů).
 - Po změně konfigurace stačí dashboard znovu otevřít nebo stisknout "Obnovit dashboard".
 
+### Rychlé spuštění aplikací
+
+```json
+"quickApps": [
+  { "name": "Poznámkový blok", "path": "C:\\Windows\\notepad.exe" }
+]
+```
+
+Nemusíš to editovat ručně — pohodlnější je tlačítko "+ Přidat" v panelu "Rychlé spuštění" (vybereš `.exe`/`.lnk` přes dialog), které si nastavení samo uloží zpátky do konfiguračního souboru. Odebrání jde přes pravý klik na ikonu aplikace.
+
 ### Lokální konfigurace (soukromá lokalita)
 
 `DashboardConfig.json` je součástí repozitáře a obsahuje jen neutrální výchozí lokalitu (Praha) — nehodí se do něj ukládat vlastní bydliště, protože soubor je veřejný.
@@ -104,7 +120,9 @@ Pro vlastní nastavení vytvoř vedle něj soubor `scripts/dashboard/DashboardCo
 - Filtrování zpráv pracuje pouze nad lokálně načtenými daty (bez síťového volání).
 - Síťové načítání RSS probíhá jen při startu dashboardu a po kliknutí na "Obnovit zprávy" nebo "Obnovit dashboard".
 - Pokud winget není dostupný, sekce aktualizací software zobrazí informativní stav.
-- V okně "Software" se zobrazují jen aplikace s dostupnou novou verzí, každý řádek má vlastní tlačítko "Upgradovat".
+- V okně "Software" se zobrazují jen aplikace s dostupnou novou verzí, každý řádek má vlastní tlačítko "Upgradovat". Winget vrací výstup až po doběhnutí celého příkazu, takže průběhový ukazatel je jen orientační (marquee styl), ne skutečné procento.
+- Motiv (světlý/tmavý) se čte z registru Windows (`AppsUseLightTheme`) při každém startu — žádný vlastní časovač na přepínání.
+- Míru průhlednosti okna lze upravit v `scripts/dashboard/StartupDashboard.ps1` (proměnná `$dashboardOpacity`, hodnota 0.0–1.0).
 
 ## Typický provozní postup
 

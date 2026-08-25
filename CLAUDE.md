@@ -34,7 +34,7 @@ Tenká vrstva vstupního bodu → WinForms UI vrstva → modul s čistou datovou
 
 ### Datové zdroje
 
-- **Počasí**: Open-Meteo API (`api.open-meteo.com`) pro aktuální stav a 3denní předpověď + ČHMÚ (`data-provider.chmi.cz`) pro doplňkovou reálnou teplotu z nejbližší české stanice (matchování názvu stanice na `location.name` bez diakritiky přes `Normalize-TextForMatch`). Veřejná IP se zjišťuje přes `api.ipify.org`.
+- **Počasí**: Open-Meteo API (`api.open-meteo.com`) pro aktuální stav a 7denní předpověď + ČHMÚ (`data-provider.chmi.cz`) pro doplňkovou reálnou teplotu z nejbližší české stanice (matchování názvu stanice na `location.name` bez diakritiky přes `Normalize-TextForMatch`). Veřejná IP se zjišťuje přes `api.ipify.org`.
 - **Zprávy**: RSS/Atom feedy nakonfigurované v `DashboardConfig.json`, parsované ručně přes `[xml]` (podporuje jak RSS `<item>`, tak Atom `<entry>` strukturu).
 - **Software**: `winget upgrade --accept-source-agreements --disable-interactivity`, výstup se parsuje regexem po sloupcích; upgrade jednotlivé aplikace se spouští z `Show-SoftwareWindow` přes `winget upgrade --id ... --exact`.
 
