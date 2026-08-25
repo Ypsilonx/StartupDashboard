@@ -38,7 +38,38 @@ function Get-DashboardConfig {
         $cfg['newsFeeds'] = @()
     }
 
+    if (-not $cfg.ContainsKey('quickApps')) {
+        $cfg['quickApps'] = @()
+    }
+
     return $cfg
+}
+
+<#
+.SYNOPSIS
+Uloží konfiguraci dashboardu do souboru JSON.
+
+.PARAMETER Config
+Hashtable konfigurace (typicky výsledek Get-DashboardConfig se změnou).
+
+.PARAMETER ConfigPath
+Volitelná cesta ke konfiguraci. Pokud není zadaná, použije se DashboardConfig.json vedle modulu.
+
+.OUTPUTS
+System.Void
+#>
+function Save-DashboardConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [hashtable]$Config,
+
+        [Parameter()]
+        [string]$ConfigPath = (Join-Path -Path $PSScriptRoot -ChildPath 'DashboardConfig.json')
+    )
+
+    $json = $Config | ConvertTo-Json -Depth 5
+    Set-Content -LiteralPath $ConfigPath -Value $json -Encoding UTF8
 }
 
 <#
@@ -193,7 +224,7 @@ function Get-ChmiCurrentWeather {
 
 <#
 .SYNOPSIS
-Načte aktuální počasí a tridenní předpověď.
+Načte aktuální počasí a sedmidenní předpověď.
 
 .PARAMETER LocationName
 Název lokality pro data ČHMÚ.
@@ -246,7 +277,7 @@ function Get-WeatherSnapshot {
             "longitude=$Longitude"
             'current=temperature_2m,relative_humidity_2m,cloud_cover,apparent_temperature,wind_speed_10m,weather_code'
             'daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'
-            'forecast_days=4'
+            'forecast_days=8'
             'timezone=Europe%2FPrague'
         ) -join '&'
 
@@ -263,7 +294,7 @@ function Get-WeatherSnapshot {
         }
 
         $forecast = @()
-        for ($i = 1; $i -le 3; $i++) {
+        for ($i = 1; $i -le 7; $i++) {
             $forecast += [PSCustomObject]@{
                 Date = (Get-Date $meteo.daily.time[$i]).ToString('ddd dd.MM.')
                 Condition = Convert-WeatherCodeToText -Code ([int]$meteo.daily.weather_code[$i])
@@ -332,6 +363,26 @@ function Get-NewsFeedItems {
         }
 
         return ([string]$Node).Trim()
+    }
+
+    function Convert-NewsNodeToAnnotation {
+        param([Parameter()][object]$Node)
+
+        $raw = Convert-NewsNodeToText -Node $Node
+        if ([string]::IsNullOrWhiteSpace($raw)) {
+            return ''
+        }
+
+        # Popisky ve feedech často obsahují HTML značky (např. <p>, <img>) - pro krátkou
+        # anotaci je odstraníme a dekódujeme HTML entity (&amp; apod.).
+        $stripped = ($raw -replace '<[^>]+>', ' ') -replace '\s+', ' '
+        $decoded = [System.Net.WebUtility]::HtmlDecode($stripped).Trim()
+
+        if ($decoded.Length -gt 220) {
+            $decoded = $decoded.Substring(0, 220).TrimEnd() + '…'
+        }
+
+        return $decoded
     }
 
     function Resolve-NewsItemLink {
@@ -412,11 +463,19 @@ function Get-NewsFeedItems {
                     $titleText = '(bez názvu)'
                 }
 
+                $descriptionNode = if ($entry.description) { $entry.description }
+                    elseif ($entry.summary) { $entry.summary }
+                    elseif ($entry.'content:encoded') { $entry.'content:encoded' }
+                    elseif ($entry.content) { $entry.content }
+                    else { $null }
+                $annotationText = Convert-NewsNodeToAnnotation -Node $descriptionNode
+
                 $items.Add([PSCustomObject]@{
                     Source = $sourceName
                     Title = $titleText
                     Link = $linkText
                     Published = $published
+                    Description = $annotationText
                 })
             }
         }
@@ -426,6 +485,7 @@ function Get-NewsFeedItems {
                 Title = ('Chyba načítání feedu: {0}' -f $_.Exception.Message)
                 Link = ''
                 Published = $null
+                Description = ''
             })
         }
     }
@@ -529,4 +589,4 @@ function Get-AvailableSoftwareUpdates {
     }
 }
 
-Export-ModuleMember -Function Get-DashboardConfig, Get-WeatherSnapshot, Get-NewsFeedItems, Get-AvailableSoftwareUpdates
+Export-ModuleMember -Function Get-DashboardConfig, Save-DashboardConfig, Get-WeatherSnapshot, Get-NewsFeedItems, Get-AvailableSoftwareUpdates
