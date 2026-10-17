@@ -36,6 +36,7 @@ scripts/
     StartupDashboard.ps1             # hlavní WinForms UI
     Dashboard.Core.psm1              # datové funkce (počasí, RSS, aktualizace software)
     DashboardConfig.json             # konfigurace lokality, RSS feedů a rychlého spuštění
+    DashboardConfig.local.json       # volitelná soukromá konfigurace (není v gitu, má přednost)
     NewsCache.json                   # automaticky generovaná lokální cache zpráv
 ```
 
@@ -52,10 +53,8 @@ scripts/
 2. Stáhni si projekt (naklonuj repozitář nebo na GitHubu stáhni ZIP a rozbal):
 
    ```powershell
-   git clone <URL-tohoto-repozitáře>
+   git clone https://github.com/Ypsilonx/StartupDashboard.git
    ```
-
-   (URL najdeš na GitHubu po vytvoření repozitáře pod tlačítkem "Code".)
 
 3. Uprav si podle potřeby `scripts/dashboard/DashboardConfig.json` (viz sekce [Konfigurace](#konfigurace)).
 
